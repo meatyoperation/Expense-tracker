@@ -1,65 +1,128 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import Link from 'next/link';
+import { useExpenses } from '@/hooks/useExpenses';
+import SummaryCards from '@/components/dashboard/SummaryCards';
+import SpendingChart from '@/components/dashboard/SpendingChart';
+import CategoryBreakdown from '@/components/dashboard/CategoryBreakdown';
+import RecentExpenses from '@/components/dashboard/RecentExpenses';
+import ExpenseModal from '@/components/expenses/ExpenseModal';
+import ExpenseForm from '@/components/expenses/ExpenseForm';
+import { getCategoryBreakdown, getLast6MonthsData } from '@/lib/utils';
+import { ExpenseFormData } from '@/lib/types';
+
+export default function DashboardPage() {
+  const { expenses, isLoaded, addExpense, stats, recentExpenses } = useExpenses();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const categoryBreakdown = getCategoryBreakdown(expenses);
+  const monthlyData = getLast6MonthsData(expenses);
+
+  function handleAdd(data: ExpenseFormData) {
+    setIsSubmitting(true);
+    addExpense(data);
+    setIsSubmitting(false);
+    setShowAddModal(false);
+    setSuccessMsg('Expense added successfully!');
+    setTimeout(() => setSuccessMsg(''), 3000);
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-slate-500 text-sm">Loading your expenses...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-0.5">
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="flex items-center gap-3">
+          <Link
+            href="/expenses"
+            className="hidden sm:flex items-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            View All
+          </Link>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
           >
-            Documentation
-          </a>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Expense
+          </button>
         </div>
-      </main>
+      </div>
+
+      {/* Success toast */}
+      {successMsg && (
+        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm font-medium">
+          <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          {successMsg}
+        </div>
+      )}
+
+      {/* Summary cards */}
+      <SummaryCards
+        totalThisMonth={stats.totalThisMonth}
+        totalLastMonth={stats.totalLastMonth}
+        monthOverMonthChange={stats.monthOverMonthChange}
+        totalToday={stats.totalToday}
+        totalAllTime={stats.totalAllTime}
+        expenseCount={stats.count}
+      />
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <SpendingChart data={monthlyData} />
+        </div>
+        <div>
+          <CategoryBreakdown categories={categoryBreakdown} />
+        </div>
+      </div>
+
+      {/* Recent expenses */}
+      <RecentExpenses expenses={recentExpenses} />
+
+      {/* Add Expense Modal */}
+      <ExpenseModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title="Add Expense"
+      >
+        <ExpenseForm
+          onSubmit={handleAdd}
+          onCancel={() => setShowAddModal(false)}
+          isSubmitting={isSubmitting}
+        />
+      </ExpenseModal>
     </div>
   );
 }
