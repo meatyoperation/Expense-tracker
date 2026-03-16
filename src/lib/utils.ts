@@ -147,6 +147,89 @@ export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+// ---- HR Portal utilities ----
+
+export function getInitials(firstName: string, lastName: string): string {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+}
+
+export const DEPARTMENT_COLORS: Record<string, string> = {
+  Engineering: 'bg-blue-100 text-blue-700',
+  Design: 'bg-purple-100 text-purple-700',
+  Marketing: 'bg-orange-100 text-orange-700',
+  Sales: 'bg-emerald-100 text-emerald-700',
+  HR: 'bg-pink-100 text-pink-700',
+  Finance: 'bg-amber-100 text-amber-700',
+  Operations: 'bg-slate-100 text-slate-700',
+};
+
+export const DEPARTMENT_DOT_COLORS: Record<string, string> = {
+  Engineering: 'bg-blue-500',
+  Design: 'bg-purple-500',
+  Marketing: 'bg-orange-500',
+  Sales: 'bg-emerald-500',
+  HR: 'bg-pink-500',
+  Finance: 'bg-amber-500',
+  Operations: 'bg-slate-500',
+};
+
+export const DEPARTMENT_CHART_COLORS: Record<string, string> = {
+  Engineering: '#3b82f6',
+  Design: '#a855f7',
+  Marketing: '#f97316',
+  Sales: '#10b981',
+  HR: '#ec4899',
+  Finance: '#f59e0b',
+  Operations: '#64748b',
+};
+
+export const STATUS_COLORS: Record<string, string> = {
+  Active: 'bg-emerald-100 text-emerald-700',
+  'On Leave': 'bg-amber-100 text-amber-700',
+  Terminated: 'bg-red-100 text-red-700',
+  Probation: 'bg-blue-100 text-blue-700',
+  Pending: 'bg-amber-100 text-amber-700',
+  Approved: 'bg-emerald-100 text-emerald-700',
+  Rejected: 'bg-red-100 text-red-700',
+  Cancelled: 'bg-slate-100 text-slate-700',
+  Present: 'bg-emerald-100 text-emerald-700',
+  Absent: 'bg-red-100 text-red-700',
+  Late: 'bg-amber-100 text-amber-700',
+  'Half Day': 'bg-blue-100 text-blue-700',
+  Draft: 'bg-slate-100 text-slate-700',
+  Processed: 'bg-blue-100 text-blue-700',
+  Paid: 'bg-emerald-100 text-emerald-700',
+  Open: 'bg-emerald-100 text-emerald-700',
+  Closed: 'bg-slate-100 text-slate-700',
+  'On Hold': 'bg-amber-100 text-amber-700',
+  Applied: 'bg-blue-100 text-blue-700',
+  Screening: 'bg-violet-100 text-violet-700',
+  Interview: 'bg-amber-100 text-amber-700',
+  Offered: 'bg-emerald-100 text-emerald-700',
+  Hired: 'bg-emerald-100 text-emerald-700',
+  Submitted: 'bg-blue-100 text-blue-700',
+  Acknowledged: 'bg-emerald-100 text-emerald-700',
+  General: 'bg-blue-100 text-blue-700',
+  Policy: 'bg-violet-100 text-violet-700',
+  Event: 'bg-emerald-100 text-emerald-700',
+  Urgent: 'bg-red-100 text-red-700',
+};
+
+export function formatSalary(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+export function daysBetween(start: string, end: string): number {
+  const s = new Date(start);
+  const e = new Date(end);
+  return Math.max(1, Math.ceil((e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+}
+
 export function validateExpenseForm(data: {
   date: string;
   amount: string;

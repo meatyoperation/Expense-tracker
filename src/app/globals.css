@@ -19,6 +19,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Sidebar transition */
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

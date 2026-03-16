@@ -1,62 +1,163 @@
-import { Expense } from './types';
+import {
+  Expense, Employee, LeaveRequest, AttendanceRecord, PaySlip,
+  JobPosting, Applicant, PerformanceReview, Announcement,
+} from './types';
+import {
+  seedEmployees, seedLeaveRequests, seedAttendance, seedPayslips,
+  seedJobs, seedApplicants, seedPerformanceReviews, seedAnnouncements, seedExpenses,
+} from './seed-data';
 
-const STORAGE_KEY = 'expense_tracker_data';
+const KEYS = {
+  expenses: 'hrflow_expenses',
+  employees: 'hrflow_employees',
+  leaves: 'hrflow_leaves',
+  attendance: 'hrflow_attendance',
+  payslips: 'hrflow_payslips',
+  jobs: 'hrflow_jobs',
+  applicants: 'hrflow_applicants',
+  reviews: 'hrflow_reviews',
+  announcements: 'hrflow_announcements',
+};
 
-export function loadExpenses(): Expense[] {
-  if (typeof window === 'undefined') return [];
+function load<T>(key: string): T[] | null {
+  if (typeof window === 'undefined') return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return getDefaultExpenses();
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed : null;
   } catch {
-    return [];
+    return null;
   }
+}
+
+function save<T>(key: string, data: T[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    console.error(`Failed to save ${key} to localStorage`);
+  }
+}
+
+// ---- Expenses ----
+export function loadExpenses(): Expense[] {
+  const data = load<Expense>(KEYS.expenses);
+  if (data) return data;
+  const seeded = seedExpenses();
+  save(KEYS.expenses, seeded);
+  return seeded;
 }
 
 export function saveExpenses(expenses: Expense[]): void {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(expenses));
-  } catch {
-    console.error('Failed to save expenses to localStorage');
-  }
+  save(KEYS.expenses, expenses);
 }
 
-// Seed data for first-time users
-function getDefaultExpenses(): Expense[] {
-  const now = new Date();
-  const mo = (offset: number) => {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  };
+// ---- Employees ----
+export function loadEmployees(): Employee[] {
+  const data = load<Employee>(KEYS.employees);
+  if (data) return data;
+  const seeded = seedEmployees();
+  save(KEYS.employees, seeded);
+  return seeded;
+}
 
-  const seed: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>[] = [
-    { date: mo(1), amount: 12.5, category: 'Food', description: 'Lunch at deli' },
-    { date: mo(2), amount: 45.0, category: 'Transportation', description: 'Monthly bus pass' },
-    { date: mo(3), amount: 89.99, category: 'Shopping', description: 'New headphones' },
-    { date: mo(4), amount: 15.0, category: 'Entertainment', description: 'Movie ticket' },
-    { date: mo(5), amount: 120.0, category: 'Bills', description: 'Internet bill' },
-    { date: mo(6), amount: 8.75, category: 'Food', description: 'Coffee shop' },
-    { date: mo(8), amount: 55.0, category: 'Food', description: 'Grocery run' },
-    { date: mo(10), amount: 30.0, category: 'Entertainment', description: 'Streaming subscriptions' },
-    { date: mo(12), amount: 22.5, category: 'Transportation', description: 'Rideshare' },
-    { date: mo(14), amount: 200.0, category: 'Bills', description: 'Electricity bill' },
-    { date: mo(16), amount: 67.0, category: 'Shopping', description: 'Clothing' },
-    { date: mo(18), amount: 9.99, category: 'Entertainment', description: 'Music subscription' },
-    { date: mo(20), amount: 48.0, category: 'Food', description: 'Dinner out' },
-    { date: mo(25), amount: 35.0, category: 'Transportation', description: 'Gas' },
-    { date: mo(30), amount: 14.5, category: 'Food', description: 'Breakfast cafe' },
-  ];
+export function saveEmployees(employees: Employee[]): void {
+  save(KEYS.employees, employees);
+}
 
-  const ts = new Date().toISOString();
-  const expenses = seed.map((s, i) => ({
-    ...s,
-    id: `seed-${i}-${Date.now()}`,
-    createdAt: ts,
-    updatedAt: ts,
-  }));
+// ---- Leave Requests ----
+export function loadLeaveRequests(): LeaveRequest[] {
+  const data = load<LeaveRequest>(KEYS.leaves);
+  if (data) return data;
+  const employees = loadEmployees();
+  const seeded = seedLeaveRequests(employees);
+  save(KEYS.leaves, seeded);
+  return seeded;
+}
 
-  saveExpenses(expenses);
-  return expenses;
+export function saveLeaveRequests(leaves: LeaveRequest[]): void {
+  save(KEYS.leaves, leaves);
+}
+
+// ---- Attendance ----
+export function loadAttendance(): AttendanceRecord[] {
+  const data = load<AttendanceRecord>(KEYS.attendance);
+  if (data) return data;
+  const employees = loadEmployees();
+  const seeded = seedAttendance(employees);
+  save(KEYS.attendance, seeded);
+  return seeded;
+}
+
+export function saveAttendance(records: AttendanceRecord[]): void {
+  save(KEYS.attendance, records);
+}
+
+// ---- Payslips ----
+export function loadPayslips(): PaySlip[] {
+  const data = load<PaySlip>(KEYS.payslips);
+  if (data) return data;
+  const employees = loadEmployees();
+  const seeded = seedPayslips(employees);
+  save(KEYS.payslips, seeded);
+  return seeded;
+}
+
+export function savePayslips(slips: PaySlip[]): void {
+  save(KEYS.payslips, slips);
+}
+
+// ---- Jobs ----
+export function loadJobs(): JobPosting[] {
+  const data = load<JobPosting>(KEYS.jobs);
+  if (data) return data;
+  const seeded = seedJobs();
+  save(KEYS.jobs, seeded);
+  return seeded;
+}
+
+export function saveJobs(jobs: JobPosting[]): void {
+  save(KEYS.jobs, jobs);
+}
+
+// ---- Applicants ----
+export function loadApplicants(): Applicant[] {
+  const data = load<Applicant>(KEYS.applicants);
+  if (data) return data;
+  const jobs = loadJobs();
+  const seeded = seedApplicants(jobs);
+  save(KEYS.applicants, seeded);
+  return seeded;
+}
+
+export function saveApplicants(applicants: Applicant[]): void {
+  save(KEYS.applicants, applicants);
+}
+
+// ---- Performance Reviews ----
+export function loadReviews(): PerformanceReview[] {
+  const data = load<PerformanceReview>(KEYS.reviews);
+  if (data) return data;
+  const employees = loadEmployees();
+  const seeded = seedPerformanceReviews(employees);
+  save(KEYS.reviews, seeded);
+  return seeded;
+}
+
+export function saveReviews(reviews: PerformanceReview[]): void {
+  save(KEYS.reviews, reviews);
+}
+
+// ---- Announcements ----
+export function loadAnnouncements(): Announcement[] {
+  const data = load<Announcement>(KEYS.announcements);
+  if (data) return data;
+  const seeded = seedAnnouncements();
+  save(KEYS.announcements, seeded);
+  return seeded;
+}
+
+export function saveAnnouncements(announcements: Announcement[]): void {
+  save(KEYS.announcements, announcements);
 }

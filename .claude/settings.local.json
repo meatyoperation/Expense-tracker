@@ -7,7 +7,9 @@
       "Bash(git checkout -b feature-data-export-v1)",
       "Bash(npm run build 2>&1 | tail -20)",
       "Bash(git add src/app/page.tsx src/lib/utils.ts && git commit -m \"$\\(cat <<'EOF'\nAdd Export Data button to dashboard \\(v1\\)\n\n- Add Export Data button to dashboard header that downloads all expenses as CSV\n- Fix CSV column order to: Date, Category, Amount, Description\n- Reuse existing exportToCSV utility from lib/utils.ts\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

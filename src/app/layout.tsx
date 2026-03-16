@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
+import AppLayout from '@/components/layout/AppLayout';
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -9,8 +9,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'ExpenseTracker — Personal Finance Manager',
-  description: 'Track your personal expenses with ease. Manage, analyze, and export your spending.',
+  title: 'HRFlow — HR Management Portal',
+  description: 'Industry-ready HR portal to manage your organization — employees, leave, payroll, recruitment, and more.',
 };
 
 export default function RootLayout({
@@ -20,9 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geist.variable} antialiased min-h-screen bg-slate-50`}>
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+      <body className={`${geist.variable} antialiased`}>
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );
